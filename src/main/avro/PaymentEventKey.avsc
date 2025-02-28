@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "PaymentEventKey",
+  "namespace": "com.example.payment",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    }
+  ]
+}
