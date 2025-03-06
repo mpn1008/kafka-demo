@@ -1,7 +1,6 @@
 package com.example.kafka_demo.domain.service;
 
 import com.example.kafka_demo.infra.kafka.KafkaProducer;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +13,7 @@ public class StdEventService implements EventService{
   }
 
   @Override
-  public boolean send(String topic, Object record) {
-    return producer.send(topic, record);
+  public boolean send(String topic, Object key, Object record) {
+    return producer.send(topic, key, record);
   }
 }

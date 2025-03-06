@@ -1,6 +1,30 @@
 version: "3"
 
 services:
+#  iam_postgresql:
+#    image: postgres:11.5
+#    container_name: iam-postgres
+#    ports:
+#      - "4432:5432"
+#    environment:
+#      - "POSTGRES_USER=u_iam"
+#      - "POSTGRES_PASSWORD=123456789"
+#      - "POSTGRES_DB=iam"
+#    volumes:
+#      - ./iam/db/init.sql:/docker-entrypoint-initdb.d/schema.sql
+#    networks:
+#      - i_network
+
+  postgresql:
+    image: postgres:16.0
+    container_name: ecommerce-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - "POSTGRES_USER=u_ecommerce"
+      - "POSTGRES_PASSWORD=123456789"
+      - "POSTGRES_DB=ecommerce"
+
   zookeeper:
     image: confluentinc/cp-zookeeper:5.4.0
     hostname: zookeeper

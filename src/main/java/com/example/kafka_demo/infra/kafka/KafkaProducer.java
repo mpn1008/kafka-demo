@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +17,7 @@ public class KafkaProducer {
     this.kafkaTemplate = kafkaTemplate;
   }
 
-  public boolean send(String topic, Object t) {
+  public boolean send(String topic, Object key, Object t) {
     try {
       this.kafkaTemplate.send(topic, t);
     } catch (Error e) {

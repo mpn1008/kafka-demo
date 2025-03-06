@@ -1,7 +1,9 @@
 package com.example.kafka_demo.app;
 
+import com.example.kafka_demo.domain.EventRecord;
 import com.example.kafka_demo.domain.service.EventService;
 import com.example.payment.PaymentEvent;
+import com.example.payment.PaymentEventKey;
 import com.example.payment.PaymentMethod;
 import com.example.payment.PaymentStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,9 @@ public class AppController {
 
   @GetMapping("/hello-world")
   public String hello() {
+    var key = PaymentEventKey.newBuilder()
+        .setEventId("Key")
+        .build();
     var event = PaymentEvent.newBuilder()
         .setEventId(UUID.randomUUID().toString())
         .setUserId(UUID.randomUUID().toString())
@@ -31,7 +36,8 @@ public class AppController {
         .setStatus(PaymentStatus.COMPLETED)
         .setCurrency("USD")
         .build();
-    svc.send("payment-event", event);
+
+    svc.send("payment-event", key, event);
     return "Hello world";
   }
 }
