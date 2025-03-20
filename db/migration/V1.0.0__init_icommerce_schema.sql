@@ -1,57 +1,68 @@
-CREATE TABLE product
+CREATE TABLE IF NOT EXISTS buyer
 (
-    product_id          BIGINT PRIMARY KEY,
-    product_name        TEXT                NULL,
-    product_price       DECIMAL             NOT NULL DEFAULT 0,
-    product_brand       TEXT                NOT NULL,
-    product_colour      TEXT                NOT NULL,
-    product_status      TEXT                NULL,
-    created_at          TIMESTAMPTZ         NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at          TIMESTAMPTZ         NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by          TEXT                NULL,
-    updated_by          TEXT                NULL
+    buyer_id           BIGINT PRIMARY KEY,
+    email              VARCHAR(320) NOT NULL,
+    password           CHAR(96)     NULL,
+    buyer_name         TEXT         NOT NULL,
+    social_id          TEXT         NOT NULL,
+    social_platform    TEXT         NOT NULL,
+    status             TEXT         NOT NULL,
+    created_at         TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by         TEXT         NOT NULL,
+    updated_by         TEXT         NOT NULL
 );
 
-CREATE TABLE shopping_cart
+CREATE UNIQUE INDEX email_unique_idx on buyer (LOWER(email));
+
+CREATE TABLE IF NOT EXISTS buyer_address
 (
-    shopping_cart_id      BIGINT PRIMARY KEY,
-    buyer_id              BIGINT NOT NULL,
-    status                TEXT        NOT NULL,
-    created_at            TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at            TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
+    address_id         UUID         PRIMARY KEY,
+    buyer_id           BIGINT       NOT NULL,
+    name               TEXT         NOT NULL,
+    default_address    BOOLEAN      NOT NULL,
+    phone_number       TEXT         NOT NULL,
+    region             TEXT         NOT NULL,
+    street             TEXT         NOT NULL,
+    created_at         TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (buyer_id) REFERENCES buyer (buyer_id) ON DELETE CASCADE
 );
 
-CREATE TABLE shopping_cart_item
+CREATE TABLE IF NOT EXISTS role
 (
-    shopping_cart_item_id      UUID PRIMARY KEY,
-    shopping_cart_id           BIGINT NOT NULL,
-    quantity                   INT NOT NULL,
-    product_id                 BIGINT NOT NULL,
-    price                      DECIMAL NOT NULL DEFAULT 0,
-    created_at                 TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at                 TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
+    role_name   CHAR(3) PRIMARY KEY,
+    description TEXT        NOT NULL UNIQUE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by  TEXT        NOT NULL,
+    updated_by  TEXT        NOT NULL
 );
 
-CREATE TABLE shopping_order
+CREATE TABLE IF NOT EXISTS privilege
 (
-    order_id      BIGINT PRIMARY KEY,
-    buyer_id      BIGINT NOT NULL,
-    cart_id       BIGINT NOT NULL,
-    status        TEXT        NOT NULL,
-
-    payment_method              TEXT     NOT NULL,
-
--- shipping address
-    shipping_name               TEXT     NOT NULL,
-    shipping_phone_number       TEXT     NOT NULL,
-    shipping_region             TEXT     NOT NULL,
-    shipping_street             TEXT     NOT NULL,
-
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
+    privilege_name CHAR(7) PRIMARY KEY,
+    description    TEXT        NULL,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by     TEXT        NOT NULL,
+    updated_by     TEXT        NOT NULL
 );
 
-CREATE TABLE outbox
+CREATE TABLE IF NOT EXISTS role_privilege
+(
+    role_name      CHAR(3)     NOT NULL,
+    privilege_name CHAR(7)     NOT NULL,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by     TEXT        NOT NULL,
+
+    PRIMARY KEY (role_name, privilege_name),
+    FOREIGN KEY (role_name) REFERENCES role (role_name) ON DELETE CASCADE,
+    FOREIGN KEY (privilege_name) REFERENCES privilege (privilege_name) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS outbox
 (
     event_id      UUID PRIMARY KEY,
     topic         TEXT        NOT NULL,
@@ -60,8 +71,28 @@ CREATE TABLE outbox
     created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE cmd_proceeded
+CREATE TABLE IF NOT EXISTS cmd_proceeded
 (
     cmd_proceeded_id TEXT PRIMARY KEY,
     created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- role
+INSERT INTO role(role_name, description, created_at, updated_at, created_by, updated_by)
+VALUES ('ADM', 'System Administrator', '2020-04-01 07:00:00', '2020-04-01 07:00:00', '', '');
+
+-- privilege
+INSERT INTO privilege(privilege_name, description, created_at, updated_at, created_by, updated_by)
+VALUES ('REA_PRO', 'Read Product', '2020-04-01 07:00:00', '2020-04-01 07:00:00', '', '');
+INSERT INTO privilege(privilege_name, description, created_at, updated_at, created_by, updated_by)
+VALUES ('WRI_PRO', 'Write Product', '2020-04-01 07:00:00', '2020-04-01 07:00:00', '', '');
+
+-- role_privilege
+INSERT INTO role_privilege(role_name, privilege_name, created_at, created_by)
+VALUES ('ADM', 'REA_PRO', '2020-04-01 07:00:00', '');
+INSERT INTO role_privilege(role_name, privilege_name, created_at, created_by)
+VALUES ('ADM', 'WRI_PRO', '2020-04-01 07:00:00', '');
+
+-- buyer
+INSERT INTO buyer (buyer_id,email,"password",buyer_name,social_id,social_platform,status,created_by,updated_by) VALUES
+(360009466,'buyer@gmail.com','$argon2id$v=19$m=4096,t=3,p=1$IY5eWqE64TcKsdNBOIDSew$PueFKwzqUhExkeaIXGKtyWrMqgwZg834rkqG4yUBxcY','Thịnh Nguyễn','902162113258707','FACEBOOK','ACTIVE','System','System');
