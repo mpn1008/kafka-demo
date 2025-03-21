@@ -7,11 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.data.annotation.Transient;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -42,9 +42,10 @@ public class ShoppingCartItem {
   @Column(name = "product_id", nullable = false)
   private Long productId;
 
-
-  @JsonIgnore
+//  @ManyToOne
+//  @JoinColumn(name = "product_product_id")
   @Transient
+  @JsonIgnore
   private Product product;
 
   public BigDecimal getSubTotal() {
