@@ -42,8 +42,6 @@ public class ShoppingCartItem {
   @Column(name = "product_id", nullable = false)
   private Long productId;
 
-//  @ManyToOne
-//  @JoinColumn(name = "product_product_id")
   @Transient
   @JsonIgnore
   private Product product;
