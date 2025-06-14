@@ -13,13 +13,20 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  id-token: write    # 🔑 Required for OIDC role assumption
+  contents: read 
+  
 jobs:
   build:
 
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
+    env:
+      IMAGE_NAME: kafka-demo           # ⬅️ Replace if needed
+      AWS_REGION: eu-central-1
+      
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
@@ -35,6 +42,29 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
+    
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::291261009631:role/github-sts  # 🔁 Replace with your IAM role name
+        aws-region: eu-central-1
+    
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push Docker image to ECR
+      run: |
+        ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+        REPO_URI=291261009631.dkr.ecr.eu-central-1.amazonaws.com/kafka-demo
+
+        echo "Building Docker image..."
+        docker build -t ${IMAGE_NAME} .
+
+        echo "Tagging image as latest..."
+        docker tag ${IMAGE_NAME}:latest ${REPO_URI}:latest
+
+        echo "Pushing image to ECR..."
+        docker push ${REPO_URI}:latest
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
@@ -47,19 +77,19 @@ jobs:
     # - name: Build with Gradle 8.9
     #   run: gradle build
 
-  dependency-submission:
+  # dependency-submission:
 
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Set up JDK 17
+  #     uses: actions/setup-java@v4
+  #     with:
+  #       java-version: '17'
+  #       distribution: 'temurin'
 
     # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
