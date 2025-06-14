@@ -15,7 +15,7 @@ on:
 
 permissions:
   id-token: write    # 🔑 Required for OIDC role assumption
-  contents: read 
+  contents: write 
   
 jobs:
   build:
