@@ -25,7 +25,7 @@ jobs:
       contents: read
     env:
       IMAGE_NAME: kafka-demo           # ⬅️ Replace if needed
-      AWS_REGION: eu-central-1
+      AWS_REGION: eu-north-1
       
     steps:
     - uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
     - name: Build, tag, and push Docker image to ECR
       run: |
         ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-        REPO_URI=291261009631.dkr.ecr.eu-central-1.amazonaws.com/kafka-demo
+        REPO_URI=291261009631.dkr.ecr.eu-north-1.amazonaws.com/kafka-demo
 
         echo "Building Docker image..."
         docker build -t ${IMAGE_NAME} .
