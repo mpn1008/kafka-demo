@@ -47,7 +47,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::291261009631:role/github-sts  # 🔁 Replace with your IAM role name
-        aws-region: eu-central-1
+        aws-region: eu-north-1
     
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
