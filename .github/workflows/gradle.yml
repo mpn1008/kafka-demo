@@ -44,7 +44,7 @@ jobs:
       run: ./gradlew build
     
     - name: Configure AWS credentials via OIDC
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v3
       with:
         role-to-assume: arn:aws:iam::291261009631:role/github-sts  # 🔁 Replace with your IAM role name
         aws-region: eu-central-1
